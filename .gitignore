@@ -1,0 +1,84 @@
+# Ignore everything by default. This workspace contains local data, build
+# outputs, resumes, archived pages, model/runtime binaries, and other personal
+# artifacts that must not be published.
+*
+
+# Repository metadata and docs
+!.gitignore
+!README.md
+!MODEL_ARTIFACTS.md
+!backend_desktop_entry.py
+!package.json
+!package-lock.json
+!index.html
+!tsconfig.json
+!tsconfig.node.json
+!vite.config.ts
+!Start-Desktop.cmd
+!Start-Web.cmd
+!Stop-Assistant.cmd
+!Check-Runtime.cmd
+!Smoke-Memory.cmd
+!Build-Desktop.cmd
+
+# Frontend source
+!src/
+!src/**
+
+# Python backend source
+!backend/
+!backend/**
+
+# Project scripts only
+!scripts/
+!scripts/build-backend.ps1
+!scripts/check-runtime.ps1
+!scripts/smoke_memory.py
+!scripts/smoke-memory.ps1
+!scripts/start-assistant.ps1
+!scripts/stop-assistant.ps1
+
+# Tauri source/config. The generated schemas are useful for local IDE support,
+# but are not required to restore the project.
+!src-tauri/
+!src-tauri/build.rs
+!src-tauri/Cargo.toml
+!src-tauri/Cargo.lock
+!src-tauri/tauri.conf.json
+!src-tauri/src/
+!src-tauri/src/**
+!src-tauri/icons/
+!src-tauri/icons/icon.ico
+!src-tauri/resources/
+!src-tauri/resources/default-settings.json
+!src-tauri/resources/backend-runtime/
+!src-tauri/resources/backend-runtime/placeholder.txt
+
+# Always keep generated/local-heavy outputs out, even under allowed folders.
+**/__pycache__/
+**/*.py[cod]
+**/*.log
+**/.DS_Store
+.assistant_data/
+.codex/
+.codex-tmp/
+.venv/
+node_modules/
+dist/
+build/
+tmp_*/
+src-tauri/target/
+src-tauri/gen/
+src-tauri/resources/backend-runtime/assistant-backend/
+src-tauri/resources/backend-runtime/**/*.exe
+src-tauri/resources/backend-runtime/**/*.dll
+src-tauri/resources/backend-runtime/**/*.pyd
+src-tauri/resources/backend-runtime/**/*.so
+src-tauri/resources/backend-runtime/**/*.dylib
+*.msi
+*.gguf
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.onnx

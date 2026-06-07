@@ -1,0 +1,20 @@
+{
+  "audio_input_device": "default",
+  "audio_output_device": "default",
+  "push_to_talk_hotkey": "Mouse Hold",
+  "llm_provider": "local",
+  "llm_model_path": "E:\\program\\models\\llm\\qwen2.5-7b-instruct-q4_k_m-00001-of-00002.gguf",
+  "llm_api_base": "",
+  "llm_api_model": "",
+  "llm_api_key": "",
+  "tts_voice_id": "default",
+  "backend_mode": "auto",
+  "whisper_model_name": "E:\\program\\models\\asr\\faster-whisper-medium.en",
+  "embedding_model_name": "bge-m3",
+  "llama_context_size": 4096,
+  "llama_gpu_layers": 35,
+  "coaching_mode": "english_coach",
+  "reply_language": "english_primary",
+  "correction_mode": "reply_then_correct",
+  "explanation_mode": "minimal_chinese"
+}
