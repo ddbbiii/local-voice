@@ -60,3 +60,22 @@ the packaged backend runtime is not required.
 Runtime settings, logs, conversations, Chroma indexes, and Markdown memory are
 stored under the app data directory, not in Git. In development mode, local data
 may also appear under `.assistant_data/`.
+
+## Cleanup Record
+
+The local model artifacts used during development were deleted from the Windows
+machine after the source code was pushed to GitHub. They were not uploaded
+because they are multi-GB binary artifacts and can be restored from their source
+model repositories when needed.
+
+Deleted local paths:
+
+```text
+E:\program\models\llm\qwen2.5-7b-instruct-q4_k_m-00001-of-00002.gguf
+E:\program\models\llm\qwen2.5-7b-instruct-q4_k_m-00002-of-00002.gguf
+E:\program\models\asr\faster-whisper-medium.en
+E:\program\models\asr\faster-whisper-large-v3
+E:\program\models\asr\faster-distil-whisper-large-v3
+```
+
+Approximate deleted size: 10 GB.
