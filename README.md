@@ -1,157 +1,153 @@
 # Local Voice Memory Assistant
 
-Windows 本地英语学习语音助手，包含：
+> 本地优先、可替换模型组件、使用 Markdown 持久化学习记忆的 Windows 英语口语助手实验项目。
 
-- `Tauri + React + TypeScript` 桌面前端
-- `FastAPI` 本地后端
-- `Markdown` 作为持久化记忆主存储
-- 可替换的 `ASR / LLM / Vector / TTS` 适配层
-- 流式事件协议和按住说话交互
+![Status](https://img.shields.io/badge/status-experimental-d07a25)
+![Tauri](https://img.shields.io/badge/Tauri-2-24C8D8?logo=tauri&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-local%20backend-009688?logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-TypeScript-61DAFB?logo=react&logoColor=17202A)
 
-## 当前实现状态
+![Local Voice Memory Assistant 流程](docs/readme-overview.svg)
 
-当前仓库已经实现：
+## 项目状态
 
-- 极简桌面 UI
-- WebSocket 流式事件显示
-- 前端按住说话录音并编码为 WAV
-- Python 后端接收音频并驱动整条对话管线
-- `memory.md` 持久化读写
-- `ChromaAdapter`，不可用时自动回退到本地 JSON 索引
-- `WhisperAdapter / LlamaCppAdapter / TTSAdapter` 适配边界
+这是一个保留完整架构边界的实验项目，不是开箱即用的成熟语音产品。仓库已经实现录音、流式事件、对话管线和持久化学习记忆，但默认适配器包含降级行为，最终识别、回答和朗读效果高度依赖本机模型、驱动与硬件。
 
-当前默认带有降级行为：
+适合：
 
-- 如果 `faster-whisper` 不可用，ASR 返回模拟文本
-- 如果 `llama.cpp` 不可用，LLM 返回本地骨架回复
-- TTS 当前为轻量 mock 适配器，前端使用本地 `speechSynthesis` 朗读句子
+- 研究本地 ASR、LLM、向量检索和 TTS 的组合方式。
+- 验证“长期学习画像 + 当前对话”的口语练习体验。
+- 作为 Tauri + FastAPI 本地桌面应用的参考实现。
 
-## 目录结构
+不适合：
 
-- `src/`: React 前端
-- `src-tauri/`: Tauri 桌面壳
-- `backend/`: Python 后端
-- `E:\program\1project\forCodex\english\codex-notes`: Codex 对话生成的资料、导出文档和工作笔记
-- `E:\program\1project\forCodex\english\.codex-memory`: Codex 项目记忆草稿
+- 需要零配置、低延迟、商业级语音质量的用户。
+- 需要多人账号、云同步、移动端或在线课程内容的场景。
+- 把模拟降级回复误当成真实模型输出的评测。
 
-## 本地开发
+## 已实现能力
 
-1. 安装前端依赖
+- `Tauri + React + TypeScript` Windows 桌面界面。
+- 按住说话录音，浏览器端编码 WAV 后发送给本地后端。
+- FastAPI + WebSocket 流式事件协议。
+- Python 对话管线：ASR → 记忆检索 → LLM → TTS。
+- `memory.md` 作为长期学习记忆的可读主存储。
+- Chroma 向量索引，不可用时回退到本地 JSON 索引。
+- `faster-whisper`、`llama.cpp` 和 TTS 的可替换适配层。
+- OpenAI-compatible 云端模型接口，可与本地 LLM 自动切换。
+- Memory 面板展示学习画像、偏好、常练主题和高频错误摘要。
+
+## 降级语义
+
+| 组件 | 正常模式 | 不可用时 |
+| --- | --- | --- |
+| ASR | `faster-whisper` 本地模型 | 返回明确标记的模拟转写 |
+| LLM | `llama.cpp` 或兼容 API | 返回本地骨架回复 |
+| Vector | ChromaDB | 回退为 JSON 索引 |
+| TTS | 可替换适配器 | 前端使用 `speechSynthesis` 朗读 |
+
+降级模式用于开发链路验证，不代表真实语音能力已经可用。排障时应先查看 `/health` 返回的 provider 和 backend mode。
+
+## 快速开始
+
+### 环境要求
+
+- Windows 10/11
+- Node.js 20+
+- Python 3.11
+- 可选：Rust 工具链，用于 Tauri 桌面壳
+- 可选：本地 Whisper 和 GGUF 模型
+
+### 安装依赖
 
 ```powershell
+git clone https://github.com/ddbbiii/local-voice.git
+cd local-voice
 npm install
-```
-
-2. 创建并安装项目 Python 环境
-
-```powershell
 py -3.11 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r backend/requirements.txt
+.\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
 ```
 
-3. 启动后端
+### Web 调试
+
+终端一：
 
 ```powershell
 .\.venv\Scripts\python.exe -m backend.app
 ```
 
-4. 启动前端
+终端二：
 
 ```powershell
 npm run dev
 ```
 
-5. 如需 Tauri 桌面壳
+也可以运行 `Start-Web.cmd` 同时启动前后端。默认开发端口为前端 `5173`、后端 `8765`。
 
-先安装 Rust 工具链，再执行：
+### Tauri 桌面版
+
+安装 Rust 工具链后：
 
 ```powershell
 npm run tauri:dev
 ```
 
-## 一键启动
+`Start-Desktop.cmd` 会使用项目自己的 `.venv` 启动桌面开发环境。`Stop-Assistant.cmd` 用于停止默认开发端口上的进程。
 
-- `Start-Desktop.cmd`
-  - 直接启动桌面版开发环境
-  - 会使用项目 `.venv`，不依赖系统 Python
-- `Start-Web.cmd`
-  - 同时拉起后端和前端网页调试环境
-- `Stop-Assistant.cmd`
-  - 关闭 `8765` 后端端口和 `5173` 前端端口上的进程
-- `Check-Runtime.cmd`
-  - 检查 `.venv`、模型文件、关键 Python 包、端口占用
-  - 可加 `-SkipHealth` 只做静态检查，不启动/探测后端
-- `Smoke-Memory.cmd`
-  - 独立验证长期学习记忆写入、Markdown 重载、常错点提取和索引重建
-  - 不加载本地大模型，适合改动记忆逻辑后快速回归
+## 模型配置
 
-## 当前默认本地模型
+模型路径和 provider 应通过本机设置提供，不要把个人绝对路径或密钥提交到仓库。
 
-- `LLM`: `E:\program\models\llm\qwen2.5-7b-instruct-q4_k_m-00001-of-00002.gguf`
-- `ASR`: `E:\program\models\asr\faster-whisper-medium.en`
-- `llama-cpp-python`: 固定使用 `0.3.19`
-
-## 当前运行验证
-
-本机当前检查结果：
-
-- `.venv` 使用 Python 3.11
-- `llama_cpp / faster_whisper / chromadb / pyttsx3` 均可导入
-- `LLM / ASR` 模型文件均存在
-- `/health` 可进入 `backend_mode=real`
-- `vector_index_provider=chroma`
-
-如果启动异常，先运行：
+启用 OpenAI-compatible API：
 
 ```powershell
-.\Check-Runtime.cmd -SkipHealth
-```
-
-如需连同后端 health 一起检查：
-
-```powershell
-.\Check-Runtime.cmd
-```
-
-## 云端 LLM 切换
-
-当前后端已经支持 `OpenAI-compatible` 的云端 LLM 接口。
-
-推荐通过环境变量提供云端配置：
-
-```powershell
-$env:ASSISTANT_LLM_API_BASE="https://your-provider.example/v1"
-$env:ASSISTANT_LLM_API_MODEL="your-chat-model"
+$env:ASSISTANT_LLM_API_BASE="https://provider.example/v1"
+$env:ASSISTANT_LLM_API_MODEL="your-model"
 $env:ASSISTANT_LLM_API_KEY="your-api-key"
 ```
 
-然后把 `.assistant_data/config/settings.json` 里的 `llm_provider` 改成：
+然后在 `.assistant_data/config/settings.json` 中选择：
 
 ```json
-"llm_provider": "api"
+{ "llm_provider": "api" }
 ```
 
-如果你想保留自动选择，也可以用：
+使用 `auto` 时，如果 API 环境变量齐全则优先云端，否则尝试本地 `llama.cpp`。API Key 只从运行时环境读取，不应写入默认设置或提交到 Git。
 
-```json
-"llm_provider": "auto"
+## 学习记忆
+
+- Markdown 是可读、可备份的长期记忆主存储。
+- 后端启动时压缩记忆并重建检索索引。
+- 记忆优先保留学习画像、纠错偏好、常练主题和高频错误类型。
+- `GET /api/memory` 返回当前学习记忆快照。
+- `POST /api/memory/rebuild` 从 Markdown 重建检索索引。
+- 前端只展示摘要和分类条目，不直接编辑 Markdown 原文。
+
+## 目录结构
+
+```text
+src/                 React 前端
+src-tauri/           Tauri 桌面壳
+backend/             FastAPI、适配器和对话管线
+scripts/             构建与冒烟测试脚本
+.assistant_data/     本机运行数据，默认不提交
 ```
 
-这时只要上面的环境变量存在，后端会优先走云端 API；否则继续走本地 `llama.cpp`。
+## 排障与验证
 
-注意：API key 不应写入 `src-tauri/resources/default-settings.json` 或提交到项目文件中。环境变量可用于运行时读取，但默认配置不会再自动把环境变量密钥持久化到 settings。
+```powershell
+.\Check-Runtime.cmd -SkipHealth
+.\Check-Runtime.cmd
+.\Smoke-Memory.cmd
+npm run build:frontend
+```
 
-## 后续接入真实模型/能力
+`Check-Runtime.cmd` 检查虚拟环境、模型文件、关键 Python 包和端口；`Smoke-Memory.cmd` 不加载大模型，只验证 Markdown 写入、重载、错误提取和索引重建。
 
-- `faster-whisper`: 已默认指向本地英语模型目录
-- `llama.cpp`: 已默认指向本地 `Qwen2.5-7B-Instruct GGUF`
-- `ChromaDB`: 当前已经通过 `ChromaAdapter` 接好，未安装时会回退到 JSON 索引
-- `TTS`: 用真实本地 TTS 替换 `MockTTSAdapter`
+## 隐私与边界
 
-## 当前学习记忆机制
+本地模式下，音频、转写和学习记忆不需要离开电脑。选择云端 API 时，发送给模型的文本受对应服务条款约束；仓库不会替用户上传或同步记忆。请勿把 `.assistant_data`、模型配置、API Key 或真实对话记录提交到公开仓库。
 
-- 后端启动时会压缩 Markdown 记忆并重建向量索引
-- `GET /api/memory` 可读取长期学习记忆快照
-- `POST /api/memory/rebuild` 可从 Markdown 重新构建检索索引
-- 记忆会优先保留学习画像、纠错偏好、常练主题和高频错误类型
-- 前端 Memory 面板只展示摘要和分类条目，不直接编辑 Markdown
+## License
+
+当前仓库尚未添加开源许可证。在许可证确定前，源码可以公开查看，但不自动授予复制、修改或分发权利。

@@ -20,6 +20,8 @@
 !Check-Runtime.cmd
 !Smoke-Memory.cmd
 !Build-Desktop.cmd
+!docs/
+!docs/readme-overview.svg
 
 # Frontend source
 !src/
